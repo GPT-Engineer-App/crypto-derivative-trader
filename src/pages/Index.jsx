@@ -8,8 +8,7 @@ const Index = () => {
   useEffect(() => {
     const fetchTradingData = async () => {
       try {
-        // Simulated API call to fetch trading data from exchanges
-        const response = await fetch("https://api.example.com/derivatives");
+        const response = await fetch("https://api.example.com/derivatives?topCoins=5");
         const data = await response.json();
         setTradingData(data);
       } catch (error) {
@@ -25,26 +24,6 @@ const Index = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const checkPositionRatioChange = () => {
-      // Check for subtle changes in Long/Short position ratio
-      tradingData.forEach((trader) => {
-        const { name, longShortRatio, previousRatio } = trader;
-        if (Math.abs(longShortRatio - previousRatio) > 0.1) {
-          toast({
-            title: "Position Ratio Change",
-            description: `Trader ${name}'s Long/Short position ratio changed significantly.`,
-            status: "warning",
-            duration: 5000,
-            isClosable: true,
-          });
-        }
-      });
-    };
-
-    checkPositionRatioChange();
-  }, [tradingData, toast]);
-
   return (
     <Box p={4}>
       <Heading as="h1" size="xl" mb={4}>
@@ -54,19 +33,22 @@ const Index = () => {
         <Thead>
           <Tr>
             <Th>Trader</Th>
-            <Th>Long/Short Ratio</Th>
+            {tradingData[0]?.coins.map((coin) => (
+              <Th key={coin.id}>{coin.symbol} Long/Short Ratio</Th>
+            ))}
           </Tr>
         </Thead>
         <Tbody>
           {tradingData.map((trader) => (
             <Tr key={trader.id}>
               <Td>{trader.name}</Td>
-              <Td>{trader.longShortRatio.toFixed(2)}</Td>
+              {trader.coins.map((coin) => (
+                <Td key={coin.id}>{coin.longShortRatio.toFixed(2)}</Td>
+              ))}
             </Tr>
           ))}
         </Tbody>
       </Table>
-      <Text mt={4}>Alerts will be shown when there is a significant change in a trader's Long/Short position ratio.</Text>
     </Box>
   );
 };
