@@ -24,12 +24,24 @@ const Index = () => {
     };
   }, []);
 
+  if (tradingData.length === 0) {
+    return (
+      <Box p={4}>
+        <Heading as="h1" size="xl" mb={4}>
+          Derivatives Trading Data
+        </Heading>
+        <Text>Loading trading data...</Text>
+      </Box>
+    );
+  }
+
   return (
     <Box p={4}>
       <Heading as="h1" size="xl" mb={4}>
         Derivatives Trading Data
       </Heading>
-      <Table variant="simple">
+      {tradingData.length > 0 ? (
+        <Table variant="simple">
         <Thead>
           <Tr>
             <Th>Trader</Th>
@@ -49,6 +61,9 @@ const Index = () => {
           ))}
         </Tbody>
       </Table>
+      ) : (
+        <Text color="red.500">Error loading trading data. Please check the API endpoint.</Text>
+      )}
     </Box>
   );
 };
