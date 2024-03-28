@@ -17,12 +17,46 @@ const Index = () => {
     };
 
     fetchTradingData();
-    const interval = setInterval(fetchTradingData, 60000); // Fetch data every 60 seconds
+    const interval = setInterval(fetchTradingData, 60000);
 
     return () => {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    const fetchTradingData = async () => {
+      try {
+        const response = await fetch("https://api.example.com/derivatives?topCoins=5");
+        const data = await response.json();
+        setTradingData(data);
+
+        data.forEach((trader) => {
+          trader.coins.forEach((coin) => {
+            const previousRatio = tradingData.find((t) => t.id === trader.id)?.coins.find((c) => c.id === coin.id)?.longShortRatio;
+            if (previousRatio && Math.abs(coin.longShortRatio - previousRatio) > 0.5) {
+              toast({
+                title: "Significant Change",
+                description: `${trader.name}'s ${coin.symbol} Long/Short ratio changed significantly from ${previousRatio.toFixed(2)} to ${coin.longShortRatio.toFixed(2)}`,
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+              });
+            }
+          });
+        });
+      } catch (error) {
+        console.error("Error fetching trading data:", error);
+      }
+    };
+
+    fetchTradingData();
+    const interval = setInterval(fetchTradingData, 60000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [tradingData, toast]);
 
   return (
     <Box p={4}>
